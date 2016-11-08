@@ -2,6 +2,7 @@ package application;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -17,11 +18,22 @@ import javafx.scene.image.*; // Contains ImageView & Image
 import javafx.scene.layout.*; // Contains subclasses of anchorPane
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.beans.binding.Bindings;
 
 public class Main extends Application {
 
 	Scene startMenu, setGamePlay, playThree, playFive, playSeven;
+	ObservableList<String> selectedShapes = FXCollections.observableArrayList(); 	//list of shapes selected in setGamePlay scene
+	ObservableList<String> selectedColors = FXCollections.observableArrayList(); 	//list of colors selected in setGamePlay scene
 	
+	//function to print elements of selected shapes or colors; used for debugging only
+	private static void printElements(ObservableList<String> list) {
+        
+        for (Object o : list) {
+            System.out.println(o.toString());
+        }
+        System.out.println("");
+    }
 	
 	
 	public void start(Stage window){
@@ -36,7 +48,7 @@ public class Main extends Application {
 		startMenuLayout.setPrefSize(900,500);
 		Label header = new Label("The Shapes Are Right");
 		
-		
+	
 		
 		
 		//VBox below contains comboBox to choose number of shapes, and it's label
@@ -79,27 +91,69 @@ public class Main extends Application {
 			//Creating listView objects for shapes and colors
 			ObservableList<String> shapes = FXCollections.observableArrayList("Circle", "Rectangle", "Eclipse", "Triangle");
 			ListView<String> shapesList = new ListView<String>(shapes);
+			shapesList.setPrefWidth(100);
+			shapesList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 			
 			ObservableList<String> colors = FXCollections.observableArrayList("Blue", "Green", "Yellow", "Red");
 			ListView<String> colorsList = new ListView<String>(colors);
-			colorsList.setPrefWidth(70);
-			colorsList.setPrefHeight(1);
+			colorsList.setPrefWidth(100);
+			colorsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+			
 			 
 			Button playButton = new Button("Play!");
 			
 			//creates an HBox to store the two listViews, and play button
 			HBox playData = new HBox();
-			
+			playData.setMaxHeight(102);
+			playData.setSpacing(70);
 			playData.getChildren().addAll(shapesList, colorsList, playButton);
 			
 			setGamePlayLayout.add(selectShapesAndColors, 0, 0);
 			setGamePlayLayout.add(playData, 0, 1);
+			
+			
+			//Styling elements
+			playData.setAlignment(Pos.CENTER);	
+			
+			
+			/************** playThree Scene *****************/
+			GridPane setPlayThree = new GridPane();
+			setPlayThree.setHgap(20);
+			setPlayThree.setVgap(20);
+			setPlayThree.setAlignment(Pos.CENTER);
+			setPlayThree.setGridLinesVisible(true);
+			setPlayThree.setPrefSize(900,500);
+			
+			//Creates HBox to hold elements for the shape guess and color guess
+			HBox guessCombos = new HBox();
+			guessCombos.setSpacing(120);
+			
+				VBox shapeGuessItems = new VBox(); 				//holds label and combo Box for shape guess
+				Label shapeGuessLabel = new Label("Shape Guess:");
+				ComboBox shapeGuessBox = new ComboBox(selectedShapes);
+				shapeGuessItems.getChildren().addAll(shapeGuessLabel, shapeGuessBox);
+				
+				VBox colorGuessItems = new VBox();
+				Label colorGuessLabel = new Label("Color Guess:");
+				ComboBox colorGuessBox = new ComboBox(selectedColors);
+				colorGuessItems.getChildren().addAll(colorGuessLabel, colorGuessBox);
+			
+			guessCombos.getChildren().addAll(shapeGuessItems, colorGuessItems); //adds above VBoxs
+			
+			Button revealButton = new Button("Reveal!");
+			setPlayThree.setHalignment(revealButton, HPos.CENTER); 
 		
+			setPlayThree.add(guessCombos, 0, 0);
+			setPlayThree.add(revealButton, 0, 1);
+			
+			
+			
 				
 		
 		/********** Creating Scenes ********/		
 		startMenu= new Scene(startMenuLayout, 900, 500);
 		setGamePlay= new Scene(setGamePlayLayout, 900, 500);
+		playThree = new Scene(setPlayThree, 900, 500);
 				
 		
 		/***Linking Stylesheet to scenes***/
@@ -109,8 +163,8 @@ public class Main extends Application {
 				getClass().getResource("application.css").toExternalForm() );
 		
 		
-		continueButton.setDisable(true);
 		//Disabling Continue button if nothing is selected from comboBox dropdown 
+		continueButton.setDisable(true);
 		numShapes.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Integer>() { 
 	        public void changed(ObservableValue<? extends Integer> observable, Integer t, Integer t1){
 	        	
@@ -122,6 +176,52 @@ public class Main extends Application {
 		
 			}
 		});
+		
+		
+	////////Disabling play button if nothing is selected from either one of ListView objects////////////
+		playButton.setDisable(true);
+		shapesList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() { 
+	        public void changed(ObservableValue<? extends String> observable, String t, String t1){
+	        	
+	        	if( (shapesList.getSelectionModel().getSelectedItem() == null) || 
+	        		(colorsList.getSelectionModel().getSelectedItem() == null) ) {
+	        		playButton.setDisable(true);
+	        	} else {
+	        		playButton.setDisable(false);
+	        	}
+			}
+		});
+		
+		colorsList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() { 
+	        public void changed(ObservableValue<? extends String> observable, String t, String t1){
+	        	
+	        	if( (shapesList.getSelectionModel().getSelectedItem() == null) || 
+	        		(colorsList.getSelectionModel().getSelectedItem() == null) ) {
+	        		playButton.setDisable(true);
+	        	} else {
+	        		playButton.setDisable(false);
+	        	}
+			}
+		});
+		
+
+		/***** Event handler for when play button is pressed: adds ********/
+		playButton.setOnAction(new EventHandler<ActionEvent>() {
+				
+				public void handle( ActionEvent event ) {
+					
+					selectedShapes.addAll(shapesList.getSelectionModel().getSelectedItems());   
+					selectedColors.addAll(colorsList.getSelectionModel().getSelectedItems());
+					printElements(selectedShapes);
+					printElements(selectedColors);
+					
+					window.setScene(playThree);
+					
+					
+					}
+		});
+		
+		
 		
 		window.setScene(startMenu);
 		window.show();
