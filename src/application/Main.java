@@ -1,5 +1,13 @@
 package application;
 
+import javafx.scene.shape.Shape;
+import javafx.animation.FadeTransition;
+
+import java.awt.List;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Random;
+
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.beans.binding.Bindings;
@@ -16,15 +24,64 @@ import javafx.scene.*; // Contains Scene, Group, and Node
 import javafx.scene.control.*; // Contains Button
 import javafx.scene.image.*; // Contains ImageView & Image
 import javafx.scene.layout.*; // Contains subclasses of anchorPane
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.beans.binding.Bindings;
+import java.util.Random;
 
 public class Main extends Application {
 
 	Scene startMenu, setGamePlay, playThree, playFive, playSeven;
 	ObservableList<String> selectedShapes = FXCollections.observableArrayList(); 	//list of shapes selected in setGamePlay scene
 	ObservableList<String> selectedColors = FXCollections.observableArrayList(); 	//list of colors selected in setGamePlay scene
+	
+	Image blankDice = new Image(Main.class.getResourceAsStream("Blank_Dice.png"));
+	ArrayList<ImageView> imageViewArray = new ArrayList<ImageView>();
+	ArrayList<StackPane> stackPaneList = new ArrayList<StackPane>();
+	ImageView img1 = new ImageView(blankDice);
+	ImageView img2 = new ImageView(blankDice);
+	ImageView img3 = new ImageView(blankDice);
+	ImageView img4 = new ImageView(blankDice);
+	ImageView img5 = new ImageView(blankDice);
+	ImageView img6 = new ImageView(blankDice);
+	ImageView img7 = new ImageView(blankDice);
+	
+	StackPane sp1 = new StackPane();
+	StackPane sp2 = new StackPane();
+	StackPane sp3 = new StackPane();
+	StackPane sp4 = new StackPane();
+	StackPane sp5 = new StackPane();
+	StackPane sp6 = new StackPane();
+	StackPane sp7 = new StackPane();
+	int index = 0;
+	int fadeIndex = 0;
+	
+	FadeTransition ft = new FadeTransition();
+	
+		
+	
+	public void fade(FadeTransition ft, ArrayList<ImageView> imageArray, int numSides, Button button){
+		
+		
+		ft.setFromValue(1.0);
+		ft.setToValue(0.0);
+	
+		ft.setNode(imageViewArray.get(fadeIndex));
+		
+		ft.play();
+		fadeIndex++;
+		
+		if(fadeIndex >= numSides){
+			button.setDisable(true);
+		}
+		
+	}
+
 	
 	//function to print elements of selected shapes or colors; used for debugging only
 	private static void printElements(ObservableList<String> list) {
@@ -34,6 +91,137 @@ public class Main extends Application {
         }
         System.out.println("");
     }
+	
+	
+	
+	public void displayShapes(ObservableList<String> listShapes, ObservableList<String> listColors, int numShapes, HBox displayBox, Button button){
+			
+		Random rng = new Random();
+		imageViewArray.add(img1);
+		imageViewArray.add(img2);
+		imageViewArray.add(img3);
+		imageViewArray.add(img4);
+		imageViewArray.add(img5);
+		imageViewArray.add(img6);
+		imageViewArray.add(img7);
+		
+		stackPaneList.add(sp1);
+		stackPaneList.add(sp2);
+		stackPaneList.add(sp3);
+		stackPaneList.add(sp4);
+		stackPaneList.add(sp5);
+		stackPaneList.add(sp6);
+		stackPaneList.add(sp7);
+		
+		
+		
+		for (int i = 0; i < (int) numShapes; i++){
+			imageViewArray.get(i).setPreserveRatio(true);
+			imageViewArray.get(i).setFitWidth(100);
+		}
+	
+			
+				for( int i = 1; i < numShapes+1; i++){
+					
+					int randomNumShapes = rng.nextInt(listShapes.size());
+					int randomNumColors = rng.nextInt(listColors.size());
+					
+					
+					if(listShapes.get(randomNumShapes) == "Rectangle"){
+						Rectangle rect = new Rectangle(10, 10, 100, 100);
+						stackPaneList.get(index).getChildren().addAll(rect, imageViewArray.get(index));
+									
+						displayBox.getChildren().add(stackPaneList.get(index));
+						
+
+										
+						
+						if(listColors.get(randomNumColors)== "Blue"){
+							rect.setFill(Color.BLUE);
+						}else if(listColors.get(randomNumColors)== "Green"){
+							rect.setFill(Color.GREEN);
+						}else if(listColors.get(randomNumColors)== "Yellow"){
+							rect.setFill(Color.YELLOW);
+						}else if(listColors.get(randomNumColors)== "Red"){
+							rect.setFill(Color.RED);
+						}
+						
+					}else if(listShapes.get(randomNumShapes)== "Circle"){
+						Circle circ = new Circle();
+						circ.setCenterX(100.0f);
+						circ.setCenterY(100.0f);
+						circ.setRadius(50.0f);
+						stackPaneList.get(index).getChildren().addAll(circ, imageViewArray.get(index));
+						
+						displayBox.getChildren().add(stackPaneList.get(index));	
+						
+	
+						if(listColors.get(randomNumColors)== "Blue"){
+							circ.setFill(Color.BLUE);
+						}else if(listColors.get(randomNumColors)== "Green"){
+							circ.setFill(Color.GREEN);
+						}else if(listColors.get(randomNumColors)== "Yellow"){
+							circ.setFill(Color.YELLOW);
+						}else if(listColors.get(randomNumColors)== "Red"){
+							circ.setFill(Color.RED);
+						}
+					
+					}else if(listShapes.get(randomNumShapes)== "Ellipse"){
+						Ellipse el = new Ellipse(); 
+						el.setCenterX(50.0f);
+						el.setCenterY(50.0f);
+						el.setRadiusX(50.0f);
+						el.setRadiusY(30.0f);
+						
+						stackPaneList.get(index).getChildren().addAll(el, imageViewArray.get(index));
+						
+						displayBox.getChildren().add(stackPaneList.get(index));	
+						
+	
+						if(listColors.get(randomNumColors)== "Blue"){
+							el.setFill(Color.BLUE);
+						}else if(listColors.get(randomNumColors)== "Green"){
+							el.setFill(Color.GREEN);
+						}else if(listColors.get(randomNumColors)== "Yellow"){
+							el.setFill(Color.YELLOW);
+						}else if(listColors.get(randomNumColors)== "Red"){
+							el.setFill(Color.RED);
+						}
+
+						
+					
+					}else if(listShapes.get(randomNumShapes)== "Triangle"){
+						Polygon tri = new Polygon();
+						tri.getPoints().addAll(new Double[]{
+								100.0, 20.0,
+							    50.0, 100.0,
+							    150.0, 100.0 
+							    });
+
+						stackPaneList.get(index).getChildren().addAll(tri, imageViewArray.get(index));
+						
+						displayBox.getChildren().add(stackPaneList.get(index));	
+							
+							if(listColors.get(randomNumColors)== "Blue"){
+								tri.setFill(Color.BLUE);
+							}else if(listColors.get(randomNumColors)== "Green"){
+								tri.setFill(Color.GREEN);
+							}else if(listColors.get(randomNumColors)== "Yellow"){
+								tri.setFill(Color.YELLOW);
+							}else if(listColors.get(randomNumColors)== "Red"){
+								tri.setFill(Color.RED);
+						}
+					
+					}
+						
+					//System.out.println("Shape "+ i + ": "+ listColors.get(randomNumColors) + " " + listShapes.get(randomNumShapes) + "\n");
+					index++;
+				}
+			
+		
+		
+		
+	}
 	
 	
 	public void start(Stage window){
@@ -89,7 +277,7 @@ public class Main extends Application {
 					+ "to play with (hold command for multiple selections): ");
 			
 			//Creating listView objects for shapes and colors
-			ObservableList<String> shapes = FXCollections.observableArrayList("Circle", "Rectangle", "Eclipse", "Triangle");
+			ObservableList<String> shapes = FXCollections.observableArrayList("Circle", "Rectangle", "Ellipse", "Triangle");
 			ListView<String> shapesList = new ListView<String>(shapes);
 			shapesList.setPrefWidth(100);
 			shapesList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -142,11 +330,15 @@ public class Main extends Application {
 			
 			Button revealButton = new Button("Reveal!");
 			setPlayThree.setHalignment(revealButton, HPos.CENTER); 
-		
+				
+			HBox displayShapesBox = new HBox();			//HBox to hold shapes to be displayed
+			
+			displayShapesBox.setSpacing(10);
+			
+			
 			setPlayThree.add(guessCombos, 0, 0);
 			setPlayThree.add(revealButton, 0, 1);
-			
-			
+			setPlayThree.add(displayShapesBox, 0, 2);
 			
 				
 		
@@ -204,22 +396,51 @@ public class Main extends Application {
 			}
 		});
 		
+		
 
-		/***** Event handler for when play button is pressed: adds ********/
+		/***** Event handler for when play button is pressed: adds selected items to lists ********/
 		playButton.setOnAction(new EventHandler<ActionEvent>() {
 				
 				public void handle( ActionEvent event ) {
 					
 					selectedShapes.addAll(shapesList.getSelectionModel().getSelectedItems());   
 					selectedColors.addAll(colorsList.getSelectionModel().getSelectedItems());
-					printElements(selectedShapes);
-					printElements(selectedColors);
+				//	printElements(selectedShapes);
+				//	printElements(selectedColors);
 					
 					window.setScene(playThree);
 					
+					displayShapes(selectedShapes, selectedColors, (int) numShapes.getValue(), displayShapesBox, revealButton);
+					
+					
+					
+					
+					
+				/*if( (int) numShapes.getValue() == 3){
+					displayShapesBox.getChildren().addAll(imageViewArray.get(0), imageViewArray.get(1), imageViewArray.get(2));
+				}*/
 					
 					}
 		});
+		
+		
+		
+		revealButton.setOnAction(new EventHandler<ActionEvent>() {
+			
+			public void handle( ActionEvent event ) {
+				
+				fade(ft, imageViewArray, (int) numShapes.getValue(), revealButton );	
+				
+				/*ft.setFromValue(1.0);
+					ft.setToValue(0.0);
+				
+					ft.setNode(imageViewArray.get(fadeIndex));
+					
+					ft.play();*/
+				
+				}
+	});
+		
 		
 		
 		
