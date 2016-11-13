@@ -6,6 +6,7 @@ import javafx.animation.FadeTransition;
 import java.awt.List;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import javafx.application.Application;
@@ -36,21 +37,25 @@ import java.util.Random;
 
 public class Main extends Application {
 
-	Scene startMenu, setGamePlay, playThree, playFive, playSeven;
+	Scene startMenu, setGamePlay, playGame;				//Creating all scenes
 	ObservableList<String> selectedShapes = FXCollections.observableArrayList(); 	//list of shapes selected in setGamePlay scene
 	ObservableList<String> selectedColors = FXCollections.observableArrayList(); 	//list of colors selected in setGamePlay scene
+	ArrayList<String> shapesForPrint = new ArrayList<String>(); 	/*List of the shapes and their specific colors together 
+	 																 (i.e the list contains "Blue Circle" or "Green Rectangle" */
+																							
 	
-	Image blankDice = new Image(Main.class.getResourceAsStream("Blank_Dice.png"));
-	ArrayList<ImageView> imageViewArray = new ArrayList<ImageView>();
-	ArrayList<StackPane> stackPaneList = new ArrayList<StackPane>();
-	ImageView img1 = new ImageView(blankDice);
-	ImageView img2 = new ImageView(blankDice);
-	ImageView img3 = new ImageView(blankDice);
-	ImageView img4 = new ImageView(blankDice);
-	ImageView img5 = new ImageView(blankDice);
-	ImageView img6 = new ImageView(blankDice);
-	ImageView img7 = new ImageView(blankDice);
-	
+	Image cardImage = new Image(Main.class.getResourceAsStream("Blank_Dice.png"));	//just a placeholder image for now, will create real image soon
+	ArrayList<ImageView> imageViewArray = new ArrayList<ImageView>(); //list of imageview objects, to hold card images 
+	ArrayList<StackPane> stackPaneList = new ArrayList<StackPane>(); //list of stackPaneo objects, to hold shapes and card images on top of shapes
+	/*Creating the image view objects, one for each potential shape (could probably be done more efficiently) */
+	ImageView img1 = new ImageView(cardImage);
+	ImageView img2 = new ImageView(cardImage);
+	ImageView img3 = new ImageView(cardImage);
+	ImageView img4 = new ImageView(cardImage);
+	ImageView img5 = new ImageView(cardImage);
+	ImageView img6 = new ImageView(cardImage);
+	ImageView img7 = new ImageView(cardImage);
+	/*Creating the stackPane objects, one for each potential shape and it's corresponding image*/
 	StackPane sp1 = new StackPane();
 	StackPane sp2 = new StackPane();
 	StackPane sp3 = new StackPane();
@@ -58,32 +63,36 @@ public class Main extends Application {
 	StackPane sp5 = new StackPane();
 	StackPane sp6 = new StackPane();
 	StackPane sp7 = new StackPane();
-	int index = 0;
-	int fadeIndex = 0;
+	int index = 0; 		//	Used in the for-loop in displayShapes() function, basically increments by one each time the loop is executed,
+						//	and is used to add the correct ImageView object to the correct stackPane --> don't worry about until you've read
+						//	the displayShapes() function
 	
-	FadeTransition ft = new FadeTransition();
+	int fadeIndex = 0; 	//	Used in fade() function, keeps track of the current place in the imageViewArray so that the fade transition is added to
+						//	the correct image
+	
+	FadeTransition ft = new FadeTransition(); 	//Used to fade the cardImages
 	
 		
+	//Applies the fade transition to the card images for each corresponding shape
+	//Takes in the fade transition, the list of imageView objects, the number of shapes, and the button that is doing the fading
+	public void fade(FadeTransition ft, ArrayList<ImageView> imageArray, int numShapes, Button button){ 		
+		ft.setFromValue(1.0); 	//set the initial value to full visibility
+		ft.setToValue(0.0);		//set the end value to full transparency 
 	
-	public void fade(FadeTransition ft, ArrayList<ImageView> imageArray, int numSides, Button button){
-		
-		
-		ft.setFromValue(1.0);
-		ft.setToValue(0.0);
-	
-		ft.setNode(imageViewArray.get(fadeIndex));
+		ft.setNode(imageViewArray.get(fadeIndex)); 	//set the node to be faded to the correct index in the imageViewArray
 		
 		ft.play();
-		fadeIndex++;
+		fadeIndex++; 		//increment the fadeIndex so that the next time the fade is executed, it is executed on the next card to the right
 		
-		if(fadeIndex >= numSides){
+		if(fadeIndex >= numShapes){		//once every shape has been revealed, disable the reveal button
 			button.setDisable(true);
 		}
 		
 	}
 
 	
-	//function to print elements of selected shapes or colors; used for debugging only
+	//function to print elements of selected shapes or colors; used for debugging only, pay no attention
+	@SuppressWarnings("unused")
 	private static void printElements(ObservableList<String> list) {
         
         for (Object o : list) {
@@ -93,10 +102,14 @@ public class Main extends Application {
     }
 	
 	
-	
-	public void displayShapes(ObservableList<String> listShapes, ObservableList<String> listColors, int numShapes, HBox displayBox, Button button){
+	/*Big daddy function, displays the chosen shapes, and adds cardImage on top of each shape*/
+	public void displayShapes(ObservableList<String> listShapes, ObservableList<String> listColors, int numShapes, 
+							HBox displayBox){  /*takes in the list of chosen shapes, list of chosen colors, the number of shapes
+												and an HBox to display each shape in	*/
 			
-		Random rng = new Random();
+		Random rng = new Random();	//random object, used below to create random integers for purpose of printing shapes
+	
+		//Adding each imageView object to array of imageView objects
 		imageViewArray.add(img1);
 		imageViewArray.add(img2);
 		imageViewArray.add(img3);
@@ -105,6 +118,7 @@ public class Main extends Application {
 		imageViewArray.add(img6);
 		imageViewArray.add(img7);
 		
+		//Adding each stackPane object to array of stackPane objects
 		stackPaneList.add(sp1);
 		stackPaneList.add(sp2);
 		stackPaneList.add(sp3);
@@ -114,28 +128,30 @@ public class Main extends Application {
 		stackPaneList.add(sp7);
 		
 		
-		
+		//setting the size of each necessary imageView object 
 		for (int i = 0; i < (int) numShapes; i++){
 			imageViewArray.get(i).setPreserveRatio(true);
 			imageViewArray.get(i).setFitWidth(100);
 		}
 	
-			
+			//complicated loop, fasten your seatbelt
+			//basically loops through the list of shapes, and creates the object that the current index of the list is on
 				for( int i = 1; i < numShapes+1; i++){
 					
-					int randomNumShapes = rng.nextInt(listShapes.size());
-					int randomNumColors = rng.nextInt(listColors.size());
+					int randomNumShapes = rng.nextInt(listShapes.size()); 	//	creates a random integer that corresponds to one of the index's in the 
+																			//	list of shapes
+					
+					int randomNumColors = rng.nextInt(listColors.size());	//	ditto, but for the list of colors
 					
 					
-					if(listShapes.get(randomNumShapes) == "Rectangle"){
-						Rectangle rect = new Rectangle(10, 10, 100, 100);
-						stackPaneList.get(index).getChildren().addAll(rect, imageViewArray.get(index));
+					if(listShapes.get(randomNumShapes) == "Rectangle"){ 	//if the index of the randomNumShapes is a rectangle...
+						Rectangle rect = new Rectangle(10, 10, 100, 100);	//creates a new rectangle object to be displayed
+						stackPaneList.get(index).getChildren().addAll(rect, imageViewArray.get(index)); //	Add the rectangle and it's corresponding
+																										//	imageView to the stackPane list
 									
-						displayBox.getChildren().add(stackPaneList.get(index));
-						
-
-										
-						
+						displayBox.getChildren().add(stackPaneList.get(index)); //	add the correct stackPane from the stackPane list to the displayBox
+																				//	this is what actually displays the shape and it's card on top of it
+					//This entire if-else statement just assigns the correct color to the shape that was just creates
 						if(listColors.get(randomNumColors)== "Blue"){
 							rect.setFill(Color.BLUE);
 						}else if(listColors.get(randomNumColors)== "Green"){
@@ -146,7 +162,11 @@ public class Main extends Application {
 							rect.setFill(Color.RED);
 						}
 						
-					}else if(listShapes.get(randomNumShapes)== "Circle"){
+						//	Adds the color and the type of shape that was just created to a list that contains the final shapes that are created
+						//	This list contains items like "Blue Rectangle" or "Green Triangle" 
+						shapesForPrint.add(listColors.get(randomNumColors) + " " + listShapes.get(randomNumShapes));
+						
+					}else if(listShapes.get(randomNumShapes)== "Circle"){		//see first part of corresponding if-else statement
 						Circle circ = new Circle();
 						circ.setCenterX(100.0f);
 						circ.setCenterY(100.0f);
@@ -166,7 +186,9 @@ public class Main extends Application {
 							circ.setFill(Color.RED);
 						}
 					
-					}else if(listShapes.get(randomNumShapes)== "Ellipse"){
+						shapesForPrint.add(listColors.get(randomNumColors) + " " + listShapes.get(randomNumShapes));
+						
+					}else if(listShapes.get(randomNumShapes)== "Ellipse"){		//see first part of corresponding if-else statement
 						Ellipse el = new Ellipse(); 
 						el.setCenterX(50.0f);
 						el.setCenterY(50.0f);
@@ -188,9 +210,9 @@ public class Main extends Application {
 							el.setFill(Color.RED);
 						}
 
-						
+						shapesForPrint.add(listColors.get(randomNumColors) + " " + listShapes.get(randomNumShapes));
 					
-					}else if(listShapes.get(randomNumShapes)== "Triangle"){
+					}else if(listShapes.get(randomNumShapes)== "Triangle"){			//see first part of corresponding if-else statement
 						Polygon tri = new Polygon();
 						tri.getPoints().addAll(new Double[]{
 								100.0, 20.0,
@@ -211,22 +233,17 @@ public class Main extends Application {
 							}else if(listColors.get(randomNumColors)== "Red"){
 								tri.setFill(Color.RED);
 						}
-					
+							shapesForPrint.add(listColors.get(randomNumColors) + " " + listShapes.get(randomNumShapes));
 					}
 						
-					//System.out.println("Shape "+ i + ": "+ listColors.get(randomNumColors) + " " + listShapes.get(randomNumShapes) + "\n");
-					index++;
-				}
-			
-		
-		
-		
+					index++;		//increment the index after each iteration of the loop
+				}	
 	}
 	
 	
 	public void start(Stage window){
 	
-	/************** startMenu Scene *****************/
+	/************** startMenu Scene ****************/
 		
 		GridPane startMenuLayout = new GridPane();
 		startMenuLayout.setHgap(20);
@@ -237,13 +254,11 @@ public class Main extends Application {
 		Label header = new Label("The Shapes Are Right");
 		
 	
-		
-		
 		//VBox below contains comboBox to choose number of shapes, and it's label
 		VBox selectNumShapesBox = new VBox();
 		Label selectNumShapes = new Label("Select the number of shapes");
 		ObservableList<Integer> numShapesOptions = FXCollections.observableArrayList( 3, 5, 7);
-		ComboBox numShapes = new ComboBox(numShapesOptions);
+		ComboBox<Integer> numShapes = new ComboBox<Integer>(numShapesOptions);
 			
 		Button continueButton = new Button("Continue");
 		continueButton.setOnAction(e -> window.setScene(setGamePlay)); 		//proceed to setGamePlay scene when continue button is clicked
@@ -262,10 +277,8 @@ public class Main extends Application {
 				startMenuLayout.getStyleClass().add("mainTheme");
 				
 			//Styling position of Elements
-			startMenuLayout.setHalignment(header, HPos.CENTER); 			//Centers header label in cell
+			GridPane.setHalignment(header, HPos.CENTER); 			//Centers header label in cell
 
-		
-			
 			/************** setGamePlay Scene *****************/
 			GridPane setGamePlayLayout = new GridPane();
 			setGamePlayLayout.setHgap(20);
@@ -304,13 +317,17 @@ public class Main extends Application {
 			playData.setAlignment(Pos.CENTER);	
 			
 			
-			/************** playThree Scene *****************/
-			GridPane setPlayThree = new GridPane();
-			setPlayThree.setHgap(20);
-			setPlayThree.setVgap(20);
-			setPlayThree.setAlignment(Pos.CENTER);
-			setPlayThree.setGridLinesVisible(true);
-			setPlayThree.setPrefSize(900,500);
+			/************** playGame Scene *****************/
+			GridPane setPlayGame = new GridPane();
+			setPlayGame.setHgap(20);
+			setPlayGame.setVgap(20);
+			setPlayGame.setAlignment(Pos.CENTER);
+			//setPlayGame.setGridLinesVisible(true);
+			setPlayGame.setPrefSize(900,500);
+			
+			//Label for instructions to be printed to user
+			Label instructions = new Label();
+			instructions.setAlignment(Pos.CENTER);
 			
 			//Creates HBox to hold elements for the shape guess and color guess
 			HBox guessCombos = new HBox();
@@ -318,34 +335,39 @@ public class Main extends Application {
 			
 				VBox shapeGuessItems = new VBox(); 				//holds label and combo Box for shape guess
 				Label shapeGuessLabel = new Label("Shape Guess:");
-				ComboBox shapeGuessBox = new ComboBox(selectedShapes);
+				ComboBox<String> shapeGuessBox = new ComboBox<String>(selectedShapes);
 				shapeGuessItems.getChildren().addAll(shapeGuessLabel, shapeGuessBox);
 				
 				VBox colorGuessItems = new VBox();
 				Label colorGuessLabel = new Label("Color Guess:");
-				ComboBox colorGuessBox = new ComboBox(selectedColors);
+				ComboBox<String> colorGuessBox = new ComboBox<String>(selectedColors);
 				colorGuessItems.getChildren().addAll(colorGuessLabel, colorGuessBox);
 			
 			guessCombos.getChildren().addAll(shapeGuessItems, colorGuessItems); //adds above VBoxs
 			
+			guessCombos.setAlignment(Pos.CENTER);
+			
 			Button revealButton = new Button("Reveal!");
-			setPlayThree.setHalignment(revealButton, HPos.CENTER); 
+			GridPane.setHalignment(revealButton, HPos.CENTER); 
+			
+	
 				
 			HBox displayShapesBox = new HBox();			//HBox to hold shapes to be displayed
+			displayShapesBox.setAlignment(Pos.CENTER);
 			
 			displayShapesBox.setSpacing(10);
 			
-			
-			setPlayThree.add(guessCombos, 0, 0);
-			setPlayThree.add(revealButton, 0, 1);
-			setPlayThree.add(displayShapesBox, 0, 2);
+			setPlayGame.add(instructions, 0, 0);
+			setPlayGame.add(guessCombos, 0, 1);
+			setPlayGame.add(revealButton, 0, 2);
+			setPlayGame.add(displayShapesBox, 0, 3);
 			
 				
 		
 		/********** Creating Scenes ********/		
 		startMenu= new Scene(startMenuLayout, 900, 500);
 		setGamePlay= new Scene(setGamePlayLayout, 900, 500);
-		playThree = new Scene(setPlayThree, 900, 500);
+		playGame = new Scene(setPlayGame, 900, 500);
 				
 		
 		/***Linking Stylesheet to scenes***/
@@ -370,7 +392,7 @@ public class Main extends Application {
 		});
 		
 		
-	////////Disabling play button if nothing is selected from either one of ListView objects////////////
+	////////Disabling play button if nothing is selected from either one of ListView objects in setGamePlay Scene////////////
 		playButton.setDisable(true);
 		shapesList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() { 
 	        public void changed(ObservableValue<? extends String> observable, String t, String t1){
@@ -397,46 +419,84 @@ public class Main extends Application {
 		});
 		
 		
+		///////////Disabling reveal if nothing is selected from either one of the comboBox objects in playScene
+		revealButton.setDisable(true);
+		shapeGuessBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() { 
+	        public void changed(ObservableValue<? extends String> observable, String t, String t1){
+	        	
+	        	if( (shapeGuessBox.getValue() == null) || 
+	        		(colorGuessBox.getValue() == null) ) {
+	        		revealButton.setDisable(true);
+	        	} else {
+	        		revealButton.setDisable(false);
+	        	}
+			}
+		});
+		
+		colorGuessBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() { 
+	        public void changed(ObservableValue<? extends String> observable, String t, String t1){
+	        	
+	        	if( (colorGuessBox.getValue() == null) || 
+	        		(shapeGuessBox.getValue() == null) ) {
+	        		revealButton.setDisable(true);
+	        	} else {
+	        		revealButton.setDisable(false);
+	        	}
+			}
+		});
+		
+		
 
 		/***** Event handler for when play button is pressed: adds selected items to lists ********/
 		playButton.setOnAction(new EventHandler<ActionEvent>() {
 				
 				public void handle( ActionEvent event ) {
 					
+					/*Adding the selected shapes and colors to two different lists, which will be used to print the shapes, 
+					 *and do a lot of other tasks inside the 'displayShapes' function*/
 					selectedShapes.addAll(shapesList.getSelectionModel().getSelectedItems());   
 					selectedColors.addAll(colorsList.getSelectionModel().getSelectedItems());
-				//	printElements(selectedShapes);
-				//	printElements(selectedColors);
 					
-					window.setScene(playThree);
-					
-					displayShapes(selectedShapes, selectedColors, (int) numShapes.getValue(), displayShapesBox, revealButton);
-					
+					window.setScene(playGame); //set the stage to the playGame scene
+				
+					/*Giant function that creates and displays the chosen shapes, as well as adds the card on top of each shape*/
+					displayShapes(selectedShapes, selectedColors, (int) numShapes.getValue(), displayShapesBox);
 					
 					
+				// Setting instructions to include the correct shapes/colors, and shuffling them
+					Collections.shuffle(shapesForPrint);
+				
+				
+					/*        Adding the correct shapes to a string to be set as the instructions text		*/
+					String instructionsText = ""; 		//the string to be printed to the user
+					String shapes = "";					//string containing just the specific number of shapes for this game
 					
-					
-				/*if( (int) numShapes.getValue() == 3){
-					displayShapesBox.getChildren().addAll(imageViewArray.get(0), imageViewArray.get(1), imageViewArray.get(2));
-				}*/
+						//The loops below are used to add the correct number of shapes to the string "shapes",
+						//so that they can be printed to the user in the "intructions" label
+							for(int i =0; i < (int) numShapes.getValue()-1; i++){
+								shapes+=("a " + shapesForPrint.get(i) + ", ");
+							}	
+							for(int i =(int) numShapes.getValue()-1 ;i < (int) numShapes.getValue(); i++){		// second loop needed to add the word
+								shapes+=("and a " + shapesForPrint.get(i) + ", ");								//"and" before the final shape
+							}
+							
+				instructionsText+=("You have " + shapes + "guess the order. "); //creating the final string to be set as the text for the 
+																				//instructions label
+				
+					instructions.setText(instructionsText);
 					
 					}
 		});
 		
 		
-		
+		//Handles the fade transition for each card
 		revealButton.setOnAction(new EventHandler<ActionEvent>() {
 			
 			public void handle( ActionEvent event ) {
 				
-				fade(ft, imageViewArray, (int) numShapes.getValue(), revealButton );	
+				/* Fades each card one by one, and then disables the reveal button once all cards have been revealed*/
+				fade( ft, imageViewArray, (int) numShapes.getValue(), revealButton );	
 				
-				/*ft.setFromValue(1.0);
-					ft.setToValue(0.0);
-				
-					ft.setNode(imageViewArray.get(fadeIndex));
-					
-					ft.play();*/
 				
 				}
 	});
