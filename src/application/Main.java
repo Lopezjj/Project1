@@ -37,7 +37,7 @@ import java.util.Random;
 
 public class Main extends Application {
 
-	Scene startMenu, setGamePlay, playGame;				//Creating all scenes
+	Scene startMenu, setGamePlay, playGame, quitOrNewGame;				//Creating all scenes
 	ObservableList<String> selectedShapes = FXCollections.observableArrayList(); 	//list of shapes selected in setGamePlay scene
 	ObservableList<String> selectedColors = FXCollections.observableArrayList(); 	//list of colors selected in setGamePlay scene
 	ArrayList<String> shapesForPrint = new ArrayList<String>(); 	/*List of the shapes and their specific colors together 
@@ -48,13 +48,7 @@ public class Main extends Application {
 	ArrayList<ImageView> imageViewArray = new ArrayList<ImageView>(); //list of imageview objects, to hold card images 
 	ArrayList<StackPane> stackPaneList = new ArrayList<StackPane>(); //list of stackPaneo objects, to hold shapes and card images on top of shapes
 	/*Creating the image view objects, one for each potential shape (could probably be done more efficiently) */
-	ImageView img1 = new ImageView(cardImage);
-	ImageView img2 = new ImageView(cardImage);
-	ImageView img3 = new ImageView(cardImage);
-	ImageView img4 = new ImageView(cardImage);
-	ImageView img5 = new ImageView(cardImage);
-	ImageView img6 = new ImageView(cardImage);
-	ImageView img7 = new ImageView(cardImage);
+	
 	/*Creating the stackPane objects, one for each potential shape and it's corresponding image*/
 	StackPane sp1 = new StackPane();
 	StackPane sp2 = new StackPane();
@@ -70,7 +64,12 @@ public class Main extends Application {
 	int fadeIndex = 0; 	//	Used in fade() function, keeps track of the current place in the imageViewArray so that the fade transition is added to
 						//	the correct image
 	
+	int gamePlayIndex = 0;
+	int numPoints = 0;
+	int trial = 1;
+	
 	FadeTransition ft = new FadeTransition(); 	//Used to fade the cardImages
+
 	
 		
 	//Applies the fade transition to the card images for each corresponding shape
@@ -79,7 +78,7 @@ public class Main extends Application {
 		ft.setFromValue(1.0); 	//set the initial value to full visibility
 		ft.setToValue(0.0);		//set the end value to full transparency 
 	
-		ft.setNode(imageViewArray.get(fadeIndex)); 	//set the node to be faded to the correct index in the imageViewArray
+		ft.setNode(imageArray.get(fadeIndex)); 	//set the node to be faded to the correct index in the imageViewArray
 		
 		ft.play();
 		fadeIndex++; 		//increment the fadeIndex so that the next time the fade is executed, it is executed on the next card to the right
@@ -91,24 +90,22 @@ public class Main extends Application {
 	}
 
 	
-	//function to print elements of selected shapes or colors; used for debugging only, pay no attention
-	@SuppressWarnings("unused")
-	private static void printElements(ObservableList<String> list) {
-        
-        for (Object o : list) {
-            System.out.println(o.toString());
-        }
-        System.out.println("");
-    }
-	
-	
 	/*Big daddy function, displays the chosen shapes, and adds cardImage on top of each shape*/
 	public void displayShapes(ObservableList<String> listShapes, ObservableList<String> listColors, int numShapes, 
-							HBox displayBox){  /*takes in the list of chosen shapes, list of chosen colors, the number of shapes
+							HBox displayBox, int index){  /*takes in the list of chosen shapes, list of chosen colors, the number of shapes
 												and an HBox to display each shape in	*/
-			
+		
 		Random rng = new Random();	//random object, used below to create random integers for purpose of printing shapes
+		index= 0;
 	
+		ImageView img1 = new ImageView(cardImage);
+		ImageView img2 = new ImageView(cardImage);
+		ImageView img3 = new ImageView(cardImage);
+		ImageView img4 = new ImageView(cardImage);
+		ImageView img5 = new ImageView(cardImage);
+		ImageView img6 = new ImageView(cardImage);
+		ImageView img7 = new ImageView(cardImage);
+		
 		//Adding each imageView object to array of imageView objects
 		imageViewArray.add(img1);
 		imageViewArray.add(img2);
@@ -131,7 +128,7 @@ public class Main extends Application {
 		//setting the size of each necessary imageView object 
 		for (int i = 0; i < (int) numShapes; i++){
 			imageViewArray.get(i).setPreserveRatio(true);
-			imageViewArray.get(i).setFitWidth(100);
+			imageViewArray.get(i).setFitWidth(110);
 		}
 	
 			//complicated loop, fasten your seatbelt
@@ -240,9 +237,37 @@ public class Main extends Application {
 				}	
 	}
 	
+	public void printInstructions(ArrayList<String> list, int numShapes ,Label label){
+		// Setting instructions to include the correct shapes/colors, and shuffling them
+		ArrayList<String> shuffledList = new ArrayList<String>(list);
+		Collections.shuffle(shuffledList);
+	
+	
+		/*        Adding the correct shapes to a string to be set as the instructions text		*/
+		String instructionsText = ""; 		//the string to be printed to the user
+		String shapes = "";					//string containing just the specific number of shapes for this game
+		
+			//The loops below are used to add the correct number of shapes to the string "shapes",
+			//so that they can be printed to the user in the "instructions" label
+				for(int i =0; i < (int) numShapes-1; i++){
+					shapes+=("a " + shuffledList.get(i) + ", ");
+				}	
+				for(int i =(int) numShapes-1 ;i < (int) numShapes; i++){		// second loop needed to add the word
+					shapes+=("and a " + shuffledList.get(i) + ", ");								//"and" before the final shape
+				}
+				
+	instructionsText+=("You have " + shapes + "guess the order. "); //creating the final string to be set as the text for the 
+																	//instructions label
+	
+		label.setText(instructionsText);
+		
+	}
+	
 	
 	public void start(Stage window){
 	
+	try{
+		
 	/************** startMenu Scene ****************/
 		
 		GridPane startMenuLayout = new GridPane();
@@ -265,7 +290,7 @@ public class Main extends Application {
 		HBox selectShapesAndContinue = new HBox(); 			//contains (comboBox and it's label), and continue button
 		selectShapesAndContinue.setSpacing(20);
 		
-		/******Adding elements to layout*******/
+		
 			//first must add numShapes and selectNumShapes to selectNumShapesBox
 				selectNumShapesBox.getChildren().addAll(selectNumShapes, numShapes);
 			//next, must had selectShapesBox and continue button to selectShapesAndContinue HBox
@@ -343,37 +368,83 @@ public class Main extends Application {
 				ComboBox<String> colorGuessBox = new ComboBox<String>(selectedColors);
 				colorGuessItems.getChildren().addAll(colorGuessLabel, colorGuessBox);
 			
-			guessCombos.getChildren().addAll(shapeGuessItems, colorGuessItems); //adds above VBoxs
+			guessCombos.getChildren().addAll(colorGuessItems, shapeGuessItems); //adds above VBoxs
 			
 			guessCombos.setAlignment(Pos.CENTER);
 			
 			Button revealButton = new Button("Reveal!");
 			GridPane.setHalignment(revealButton, HPos.CENTER); 
 			
-	
+
+			HBox nextOrQuitBox = new HBox();
+			nextOrQuitBox.setSpacing(120);
+				
+				Button nextTrial = new Button("Next Trial!");
+				Button quitGame = new Button("Quit Game!");
+				
+				nextOrQuitBox.getChildren().add(nextTrial);
+				nextOrQuitBox.getChildren().add(quitGame);
+			
+				nextTrial.setDisable(true);
+				//quitGame.setDisable(true);
+				
+			nextOrQuitBox.setAlignment(Pos.CENTER);
+				
 				
 			HBox displayShapesBox = new HBox();			//HBox to hold shapes to be displayed
 			displayShapesBox.setAlignment(Pos.CENTER);
 			
 			displayShapesBox.setSpacing(10);
 			
+			
+			Label finalScoreLabel = new Label(null); //Displays the user's final score, once said score has been calculated. Set to null for this reason
+			setPlayGame.add(finalScoreLabel, 0, 5);
+			
 			setPlayGame.add(instructions, 0, 0);
 			setPlayGame.add(guessCombos, 0, 1);
 			setPlayGame.add(revealButton, 0, 2);
 			setPlayGame.add(displayShapesBox, 0, 3);
+			setPlayGame.add(nextOrQuitBox, 0, 4);
 			
-				
+			/************* Creating quitOrNewGame Scene ************/
+		
+		GridPane quitOrNewGameLayout = new GridPane();
+		
+		quitOrNewGameLayout.setHgap(20);
+		quitOrNewGameLayout.setVgap(20);
+		quitOrNewGameLayout.setAlignment(Pos.CENTER);
+		//quitOrNewGameLayout.setGridLinesVisible(true);
+		quitOrNewGameLayout.setPrefSize(900,500);
+		
+		HBox quitOrNewGameBox = new HBox();
+			
+			Button newGame = new Button("New Game!");
+			Button quitButton = new Button("Quit!");
+			
+			quitOrNewGameBox.getChildren().add(newGame);
+			quitOrNewGameBox.getChildren().add(quitButton);
+			
+			quitOrNewGameBox.setSpacing(30);
+		
+		quitOrNewGameLayout.add(quitOrNewGameBox, 0, 0);
+						
 		
 		/********** Creating Scenes ********/		
 		startMenu= new Scene(startMenuLayout, 900, 500);
 		setGamePlay= new Scene(setGamePlayLayout, 900, 500);
 		playGame = new Scene(setPlayGame, 900, 500);
+		quitOrNewGame = new Scene(quitOrNewGameLayout, 900, 500);
+		
 				
 		
 		/***Linking Stylesheet to scenes***/
 		startMenu.getStylesheets().add( 
 				getClass().getResource("application.css").toExternalForm() );
 		setGamePlay.getStylesheets().add( 
+				getClass().getResource("application.css").toExternalForm() );
+		playGame.getStylesheets().add( 
+				getClass().getResource("application.css").toExternalForm() );
+		quitOrNewGame.getStylesheets().add( 
 				getClass().getResource("application.css").toExternalForm() );
 		
 		
@@ -460,31 +531,11 @@ public class Main extends Application {
 					window.setScene(playGame); //set the stage to the playGame scene
 				
 					/*Giant function that creates and displays the chosen shapes, as well as adds the card on top of each shape*/
-					displayShapes(selectedShapes, selectedColors, (int) numShapes.getValue(), displayShapesBox);
+					displayShapes(selectedShapes, selectedColors, (int) numShapes.getValue(), displayShapesBox, index);
 					
+					printInstructions(shapesForPrint, (int) numShapes.getValue(), instructions);
 					
-				// Setting instructions to include the correct shapes/colors, and shuffling them
-					Collections.shuffle(shapesForPrint);
-				
-				
-					/*        Adding the correct shapes to a string to be set as the instructions text		*/
-					String instructionsText = ""; 		//the string to be printed to the user
-					String shapes = "";					//string containing just the specific number of shapes for this game
-					
-						//The loops below are used to add the correct number of shapes to the string "shapes",
-						//so that they can be printed to the user in the "intructions" label
-							for(int i =0; i < (int) numShapes.getValue()-1; i++){
-								shapes+=("a " + shapesForPrint.get(i) + ", ");
-							}	
-							for(int i =(int) numShapes.getValue()-1 ;i < (int) numShapes.getValue(); i++){		// second loop needed to add the word
-								shapes+=("and a " + shapesForPrint.get(i) + ", ");								//"and" before the final shape
-							}
-							
-				instructionsText+=("You have " + shapes + "guess the order. "); //creating the final string to be set as the text for the 
-																				//instructions label
-				
-					instructions.setText(instructionsText);
-					
+					System.out.println(shapesForPrint);
 					}
 		});
 		
@@ -497,16 +548,135 @@ public class Main extends Application {
 				/* Fades each card one by one, and then disables the reveal button once all cards have been revealed*/
 				fade( ft, imageViewArray, (int) numShapes.getValue(), revealButton );	
 				
+				String guess = colorGuessBox.getValue() + " " + shapeGuessBox.getValue();
 				
+				System.out.println(shapesForPrint.get(gamePlayIndex));
+				
+				if(guess.equals(shapesForPrint.get(gamePlayIndex))){
+					numPoints++;
+					System.out.println("Num Points: " + numPoints);
+				}	
+				gamePlayIndex++;
+				
+				//once all the shapes have been revealed, allow the user to proceed to next trial
+				if(gamePlayIndex >= (int) numShapes.getValue()){
+					
+					nextTrial.setDisable(false);
+					trial++;		//increment the trial counter so that the correct number of trials is played
+					
+				}
+					
+				//Once the last trial is completed, this code is executed
+				if(trial > 3){
+					nextTrial.setDisable(true);
+					System.out.println("Game Over");
+					int scoreCalulate = 3*(int) numShapes.getValue();
+					finalScoreLabel.setText("Final Score: "+ numPoints + " out of " + scoreCalulate + " points!" );	//display the user's final score
+					
+				}
+				
+						
 				}
 	});
 		
+		/**** Event Handler for when the nextTrial Button is pressed ****/
+		//Basically clears everything from previous trial and starts trial over
+		nextTrial.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle( ActionEvent event ) {
+				imageViewArray.removeAll(imageViewArray);
+				shapesForPrint.removeAll(shapesForPrint);
+				gamePlayIndex = 0;
+				fadeIndex = 0;
+				stackPaneList.removeAll(stackPaneList);
+				
+				sp1.getChildren().clear();
+				sp2.getChildren().clear();
+				sp3.getChildren().clear();
+				sp4.getChildren().clear();
+				sp5.getChildren().clear();
+				sp6.getChildren().clear();
+				sp7.getChildren().clear();
+				
+				nextTrial.setDisable(true);
+				
+				displayShapesBox.getChildren().clear();
+			
+				displayShapes(selectedShapes, selectedColors, (int) numShapes.getValue(), displayShapesBox, index);
+				
+				printInstructions(shapesForPrint, (int) numShapes.getValue(), instructions);
+				
+				System.out.println(shapesForPrint);
+				
+				revealButton.setDisable(false);
+				
+				window.setScene(playGame);
+					
+			}
+		});
 		
+		//Brings user to quitOrNewGame scene, to choose whether to quit the game or play a new one
+		quitGame.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle( ActionEvent event ) {
+		
+				window.setScene(quitOrNewGame);
+		
+			}
+		});
+		
+		//Clears EVERYTHING from previous game
+		newGame.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle( ActionEvent event ) {
+				window.setScene(startMenu);
+			
+				numShapes.valueProperty().set(null);
+				colorGuessBox.valueProperty().set(null);
+				shapeGuessBox.valueProperty().set(null);
+				
+				shapesList.getSelectionModel().clearSelection();
+				colorsList.getSelectionModel().clearSelection();
+				
+				selectedShapes.clear();
+				selectedColors.clear();
+				
+				finalScoreLabel.setText(null);
+				
+				fadeIndex = 0; 	
+				gamePlayIndex = 0;
+				numPoints = 0;
+				trial = 1;
+				
+				imageViewArray.removeAll(imageViewArray);
+				shapesForPrint.removeAll(shapesForPrint);
+				stackPaneList.removeAll(stackPaneList);
+				
+				sp1.getChildren().clear();
+				sp2.getChildren().clear();
+				sp3.getChildren().clear();
+				sp4.getChildren().clear();
+				sp5.getChildren().clear();
+				sp6.getChildren().clear();
+				sp7.getChildren().clear();
+				
+				nextTrial.setDisable(true);
+				
+				displayShapesBox.getChildren().clear();
+			}
+		});
+		
+		//Quit game if quitButton is selected
+		quitButton.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle( ActionEvent event ) {
+				window.hide();
+			}
+		});
 		
 		
 		window.setScene(startMenu);
 		window.show();
 		
+	} catch(Exception e) {
+		e.printStackTrace();
+	}
 	
 	}
 	public static void main(String[] args) {
