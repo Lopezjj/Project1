@@ -1,0 +1,83 @@
+
+
+.maintheme {
+	-fx-background-image: url(background.jpg); 
+	-fx-background-radius: 5;
+	-fx-padding: 10 10 10 20;
+	-fx-alignment: center;
+	-fx-hgap: 20.0;
+	-fx-vgap: 20.0;
+	-fx-spacing: 10.0;
+}
+
+.gametheme {
+	-fx-background-image: url(NEuip.jpg); 
+	-fx-background-size: cover;
+	-fx-background-radius: 5;
+	-fx-padding: 10 10 10 20;
+	-fx-alignment: center;
+	-fx-hgap: 20.0;
+	-fx-vgap: 20.0;
+	-fx-spacing: 10.0;
+}
+
+.scoretheme {
+	-fx-background-image: url(lotsofire.gif); 
+	-fx-background-size: cover;
+	-fx-background-radius: 5;
+	-fx-padding: 10 10 10 20;
+	-fx-alignment: center;
+	-fx-hgap: 20.0;
+	-fx-vgap: 20.0;
+	-fx-spacing: 10.0;
+}
+
+.spacetheme {
+	-fx-alignment: center;
+	-fx-spacing: 20.0;
+}
+
+.buttontheme {
+	-fx-background-color: #808080;
+	-fx-font-family: "Arial";
+	-fx-font-size: 18.0;
+	-fx-text-fill: #00ffff;
+}
+
+.buttontheme2 {
+	-fx-background-color: #4169E1;
+	-fx-font-family: "Arial";
+	-fx-font-size: 18.0;
+	-fx-text-fill: #FF0000;
+}
+
+.boxtheme {
+	-fx-alignment: center;
+	-fx-spacing: 10.0;
+}
+
+.mainlabeltheme {
+	-fx-text-fill: #000000;
+	-fx-font-weight: bold;
+	-fx-font-size: 15.0;
+}
+
+.gamelabeltheme {
+	-fx-text-fill: #FF0000;
+	-fx-font-weight: bold;
+	-fx-font-size: 15.0;
+}
+
+.scorelabeltheme {
+	-fx-text-fill: #FF0000;
+	-fx-font-weight: bold;
+	-fx-font-size: 45.0;
+	-fx-alignment: center;
+}
+
+.titletheme {
+	-fx-text-fill: #A9A9A9;
+	-fx-font-weight: bold;
+	-fx-font-size: 55;
+	-fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.7), 6, 0.0, 0, 2); 
+}
